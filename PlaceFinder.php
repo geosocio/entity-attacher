@@ -85,7 +85,7 @@ class PlaceFinder implements PlaceFinderInterface
             if ($e->getResponse()->getStatusCode() !== 404) {
                 throw $e;
             }
-            $ancestor = $input->getPlace()->getAncestor()->first();
+            $ancestor = $input->getPlace()->getAncestors()->first();
             while ($ancestor) {
                 try {
                     $place = $this->getPlace($ancestor->getAncestor());
@@ -94,7 +94,7 @@ class PlaceFinder implements PlaceFinderInterface
                     if ($e->getResponse()->getStatusCode() !== 404) {
                         throw $e;
                     }
-                    $ancestor = $input->getPlace()->getAncestor()->next();
+                    $ancestor = $input->getPlace()->getAncestors()->next();
                     continue;
                 }
             }
