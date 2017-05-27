@@ -39,10 +39,11 @@ class EmailDispatcher implements DispatcherInterface
 
         $response = $this->sendGrid->client->mail()->send()->post($mail);
 
-        if (!$response->statusCode() !== 202) {
+        if ($response->statusCode() !== 202) {
             $message = 'SendGrid Error';
 
             $body = json_decode($response->body());
+
             if (!empty($body->errors) && !empty($body->errors[0]->message)) {
                 $message = $body->errors[0]->message;
             }
