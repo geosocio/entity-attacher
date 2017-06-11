@@ -5,7 +5,9 @@ namespace GeoSocio\Core\Utils;
 use Doctrine\Common\Collections\Collection;
 
 /**
- * Array Trait
+ * Array Utils.
+ *
+ * @TODO This class is no longer used.
  */
 class ArrayUtils
 {
