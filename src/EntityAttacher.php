@@ -32,8 +32,10 @@ class EntityAttacher implements EntityAttacherInterface
         $metadata = $this->em->getClassMetadata($class);
 
         // Return the item if it's already in the database.
-        if ($item = $this->em->find($class, $metadata->getIdentifierValues($object))) {
-            return $item;
+        if ($ids = $metadata->getIdentifierValues($object)) {
+            if ($item = $this->em->find($class, $ids)) {
+                return $item;
+            }
         }
 
         $mappings = $metadata->getAssociationMappings();
