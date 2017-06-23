@@ -1,11 +1,11 @@
 <?php
 
-namespace GeoSocio\Core\Utils;
+namespace GeoSocio\EntityAttacher;
 
+use GeoSocio\EntityAttacher\Annotation\Attach;
 use Doctrine\Common\Annotations\Reader;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManager;
-use GeoSocio\Core\Annotation\Attach;
 
 class EntityAttacher implements EntityAttacherInterface
 {

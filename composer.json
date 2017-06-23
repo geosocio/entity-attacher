@@ -1,0 +1,21 @@
+{
+    "name": "geosocio/entity-attacher",
+    "description": "Utility to Attach Doctrine Entities to existing instances",
+    "type": "library",
+    "license": "LGPL-3",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "autoload": {
+        "psr-4": {
+          "GeoSocio\\EntityAttacher\\": "src/"
+        }
+    },
+    "require": {
+        "doctrine/collections": "^1.0",
+        "doctrine/annotations": "^1.0.0",
+        "doctrine/orm": "^2.5.0"
+    },
+    "require-dev": {
+        "squizlabs/php_codesniffer": "^3.0"
+    }
+}
