@@ -1,6 +1,6 @@
 <?php
 
-namespace GeoSocio\Core\Utils;
+namespace GeoSocio\EntityAttacher;
 
 interface EntityAttacherInterface
 {
