@@ -1,4 +1,4 @@
-# Entity Attacher
+# Entity Attacher [![Build Status](https://travis-ci.org/geosocio/entity-attacher.svg?branch=develop)](https://travis-ci.org/geosocio/entity-attacher) [![Coverage Status](https://coveralls.io/repos/github/geosocio/entity-attacher/badge.svg)](https://coveralls.io/github/geosocio/entity-attacher)
 Provides a method to attach _related_ entities to the current _unnatached_
 entity.This library is the product of a missing API that was found in
 [doctrine/doctrine2#6459](https://github.com/doctrine/doctrine2/issues/6459). If
