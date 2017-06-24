@@ -16,6 +16,20 @@
         "doctrine/orm": "^2.5.0"
     },
     "require-dev": {
-        "squizlabs/php_codesniffer": "^3.0"
+        "squizlabs/php_codesniffer": "^3.0",
+        "phpunit/phpunit": "^6.2"
+    },
+    "scripts": {
+        "lint": [
+          "phpcs --colors ."
+        ],
+        "test": [
+            "@lint",
+            "phpunit -v"
+        ],
+        "test-coverage": [
+            "@lint",
+            "phpunit -v --coverage-clover coverage.clover"
+        ]
     }
 }
