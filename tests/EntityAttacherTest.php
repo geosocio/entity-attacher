@@ -28,7 +28,6 @@ class EntityAttacherTest extends TestCase
 
         $reader = $this->createMock(Reader::class);
 
-
         $entityAttacher = new EntityAttacher($em, $reader);
 
         $unattached = new \stdClass;
@@ -89,7 +88,7 @@ class EntityAttacherTest extends TestCase
         $this->assertSame($existing, $attached);
     }
 
-    public function testAttachRelationship()
+    public function testAttachUnattachedRelationship()
     {
         $related = new \stdClass();
         $related->id = 321;
@@ -127,6 +126,57 @@ class EntityAttacherTest extends TestCase
             ->method('getPropertyAnnotations')
             ->with($property)
             ->willReturn([]);
+
+        $entityAttacher = new EntityAttacher($em, $reader);
+
+        $attached = $entityAttacher->attach($unattached);
+
+        $this->assertEquals($unattached->id, $attached->id);
+        $this->assertEquals($unattached->related->id, $attached->related->id);
+    }
+
+    public function testAttachEmptyRelationship()
+    {
+        $related = new \stdClass();
+        $related->id = 321;
+
+        $unattached = new \stdClass();
+        $unattached->id = 123;
+        $unattached->related = $related;
+
+        $property = $this->getMockBuilder(\ReflectionProperty::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $metadata = $this->getMockBuilder(ClassMetadataInfo::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $metadata->expects($this->once())
+            ->method('getAssociationMappings')
+            ->willReturn([
+                [
+                    'fieldName' => 'related',
+                ],
+            ]);
+        $metadata->expects($this->once())
+            ->method('getReflectionProperty')
+            ->with('related')
+            ->willReturn($property);
+
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects($this->once())
+            ->method('getClassMetadata')
+            ->willReturn($metadata);
+
+        $attach = $this->createMock(Attach::class);
+
+        $reader = $this->createMock(Reader::class);
+        $reader->expects($this->once())
+            ->method('getPropertyAnnotations')
+            ->with($property)
+            ->willReturn([
+                $attach,
+            ]);
 
         $entityAttacher = new EntityAttacher($em, $reader);
 
