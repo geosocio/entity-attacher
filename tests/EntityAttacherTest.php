@@ -263,7 +263,8 @@ class EntityAttacherTest extends TestCase
         $metadata = $this->getMockBuilder(ClassMetadataInfo::class)
             ->disableOriginalConstructor()
             ->getMock();
-        $metadata->method('getIdentifierValues')
+        $metadata->expects($this->exactly(2))
+            ->method('getIdentifierValues')
             ->willReturnOnConsecutiveCalls(
                 [
                     'id' => 123,
@@ -328,5 +329,103 @@ class EntityAttacherTest extends TestCase
 
         $this->assertEquals($unattached->id, $attached->id);
         $this->assertEquals($unattached->related->id, $attached->related->id);
+    }
+
+    public function testAttacRelationshipRecursive()
+    {
+        $child = new \stdClass();
+        $child->id = 'abc';
+
+        $related = new \stdClass();
+        $related->id = 321;
+        $related->child = $child;
+
+        $unattached = new \stdClass();
+        $unattached->id = 123;
+        $unattached->related = $related;
+
+        $property = $this->getMockBuilder(\ReflectionProperty::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $metadata = $this->getMockBuilder(ClassMetadataInfo::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $metadata->expects($this->exactly(3))
+            ->method('getIdentifierValues')
+            ->willReturnOnConsecutiveCalls(
+                [
+                    'id' => 123,
+                ],
+                [
+                    'id' => 321,
+                ],
+                [
+                    'id' => 'abc',
+                ]
+            );
+        $metadata->expects($this->once())
+            ->method('getAssociationMappings')
+            ->willReturn([
+                [
+                    'fieldName' => 'related',
+                    'targetEntity' => \stdClass::class,
+                ],
+            ]);
+        $metadata->expects($this->once())
+            ->method('getReflectionProperty')
+            ->with('related')
+            ->willReturn($property);
+        $metadata->expects($this->exactly(2))
+            ->method('getFieldValue')
+            ->with($unattached, 'related')
+            ->willReturn($related);
+
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects($this->exactly(3))
+            ->method('getClassMetadata')
+            ->with(\stdClass::class)
+            ->willReturn($metadata);
+        $em->expects($this->exactly(3))
+            ->method('find')
+            ->withConsecutive(
+                [
+                    \stdClass::class,
+                    [
+                        'id' => 123,
+                    ]
+                ],
+                [
+                    \stdClass::class,
+                    [
+                        'id' => 321,
+                    ]
+                ],
+                [
+                    \stdClass::class,
+                    [
+                        'id' => 'abc',
+                    ]
+                ]
+            )
+            ->willReturnOnConsecutiveCalls(null, null, $child);
+
+        $attach = $this->createMock(Attach::class);
+
+        $reader = $this->createMock(Reader::class);
+        $reader->expects($this->once())
+            ->method('getPropertyAnnotations')
+            ->with($property)
+            ->willReturn([
+                $attach,
+            ]);
+
+        $entityAttacher = new EntityAttacher($em, $reader);
+
+        $attached = $entityAttacher->attach($unattached);
+
+        $this->assertEquals($unattached->id, $attached->id);
+        $this->assertEquals($unattached->related->id, $attached->related->id);
+        $this->assertEquals($unattached->related->child->id, $attached->related->child->id);
     }
 }
