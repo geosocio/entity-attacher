@@ -436,11 +436,13 @@ class EntityAttacherTest extends TestCase
         $related = new \stdClass();
         $related->id = 321;
 
-        $unattached = new \stdClass();
-        $unattached->id = 123;
-        $unattached->related = new ArrayCollection([
+        $collection = new ArrayCollection([
             $related,
         ]);
+
+        $unattached = new \stdClass();
+        $unattached->id = 123;
+        $unattached->related = $collection;
 
         $property = $this->getMockBuilder(\ReflectionProperty::class)
             ->disableOriginalConstructor()
@@ -474,7 +476,7 @@ class EntityAttacherTest extends TestCase
         $metadata->expects($this->exactly(2))
             ->method('getFieldValue')
             ->with($unattached, 'related')
-            ->willReturn($related);
+            ->willReturn($collection);
 
         $em = $this->createMock(EntityManagerInterface::class);
         $em->expects($this->exactly(2))
