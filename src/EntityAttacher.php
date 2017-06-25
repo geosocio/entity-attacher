@@ -5,7 +5,7 @@ namespace GeoSocio\EntityAttacher;
 use GeoSocio\EntityAttacher\Annotation\Attach;
 use Doctrine\Common\Annotations\Reader;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 
 class EntityAttacher implements EntityAttacherInterface
 {
@@ -14,7 +14,7 @@ class EntityAttacher implements EntityAttacherInterface
 
     protected $reader;
 
-    public function __construct(EntityManager $em, Reader $reader)
+    public function __construct(EntityManagerInterface $em, Reader $reader)
     {
         $this->em = $em;
         $this->reader = $reader;
