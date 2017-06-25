@@ -6,6 +6,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Doctrine\Common\Annotations\Reader;
 use GeoSocio\EntityAttacher\EntityAttacher;
+use GeoSocio\EntityAttacher\Annotation\Attach;
 use PHPUnit\Framework\TestCase;
 
 class EntityAttacherTest extends TestCase
@@ -86,5 +87,52 @@ class EntityAttacherTest extends TestCase
         $attached = $entityAttacher->attach($unattached);
 
         $this->assertSame($existing, $attached);
+    }
+
+    public function testAttachRelationship()
+    {
+        $related = new \stdClass();
+        $related->id = 321;
+
+        $unattached = new \stdClass();
+        $unattached->id = 123;
+        $unattached->related = $related;
+
+        $property = $this->getMockBuilder(\ReflectionProperty::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $metadata = $this->getMockBuilder(ClassMetadataInfo::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $metadata->expects($this->once())
+            ->method('getAssociationMappings')
+            ->willReturn([
+                [
+                    'fieldName' => 'related',
+                ],
+            ]);
+        $metadata->expects($this->once())
+            ->method('getReflectionProperty')
+            ->with('related')
+            ->willReturn($property);
+
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects($this->once())
+            ->method('getClassMetadata')
+            ->willReturn($metadata);
+
+        $reader = $this->createMock(Reader::class);
+        $reader->expects($this->once())
+            ->method('getPropertyAnnotations')
+            ->with($property)
+            ->willReturn([]);
+
+        $entityAttacher = new EntityAttacher($em, $reader);
+
+        $attached = $entityAttacher->attach($unattached);
+
+        $this->assertEquals($unattached->id, $attached->id);
+        $this->assertEquals($unattached->related->id, $attached->related->id);
     }
 }
