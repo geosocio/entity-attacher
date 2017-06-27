@@ -2,6 +2,7 @@
 
 namespace GeoSocio\EntityAttacher;
 
+use Doctrine\ORM\ORMInvalidArgumentException;
 use GeoSocio\EntityAttacher\Annotation\Attach;
 use Doctrine\Common\Annotations\Reader;
 use Doctrine\Common\Collections\Collection;
@@ -33,7 +34,13 @@ class EntityAttacher implements EntityAttacherInterface
 
         // Return the item if it's already in the database.
         if ($ids = $metadata->getIdentifierValues($object)) {
-            if ($item = $this->em->find($class, $ids)) {
+            try {
+                $item = $this->em->find($class, $ids);
+            } catch (ORMInvalidArgumentException $e) {
+                $item = null;
+            }
+
+            if ($item) {
                 return $item;
             }
         }
@@ -75,7 +82,11 @@ class EntityAttacher implements EntityAttacherInterface
 
             if ($value instanceof Collection) {
                 $item = $value->map(function ($stub) use ($data, $meta) {
-                    $item = $this->em->find($data['targetEntity'], $meta->getIdentifierValues($stub));
+                    try {
+                        $item = $this->em->find($data['targetEntity'], $meta->getIdentifierValues($stub));
+                    } catch (ORMInvalidArgumentException $e) {
+                        $item = null;
+                    }
 
                     // If the item was not found in the database, recursively call this
                     // method.
@@ -86,7 +97,11 @@ class EntityAttacher implements EntityAttacherInterface
                     return $item;
                 });
             } else {
-                $item = $this->em->find($data['targetEntity'], $meta->getIdentifierValues($value));
+                try {
+                    $item = $this->em->find($data['targetEntity'], $meta->getIdentifierValues($value));
+                } catch (ORMInvalidArgumentException $e) {
+                    $item = null;
+                }
 
                 // If the item was not found in the database, recursively call this
                 // method.
