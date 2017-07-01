@@ -606,7 +606,7 @@ class EntityAttacherTest extends TestCase
                     ]
                 ]
             )
-            ->willReturnOnConsecutiveCalls(null, null, $child);
+            ->willReturnOnConsecutiveCalls(null, $this->throwException(new ORMInvalidArgumentException()), $child);
 
         $attach = $this->createMock(Attach::class);
 
