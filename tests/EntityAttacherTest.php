@@ -91,43 +91,6 @@ class EntityAttacherTest extends TestCase
         $this->assertSame($existing, $attached);
     }
 
-    public function testAttachFindException()
-    {
-        $id = 123;
-        $ids = [
-            'id' => 123,
-        ];
-
-        $unattached = new \stdClass;
-        $unattached->id = $id;
-
-        $metadata = $this->getMockBuilder(ClassMetadataInfo::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $metadata->expects($this->once())
-            ->method('getIdentifierValues')
-            ->willReturn($ids);
-        $metadata->expects($this->once())
-            ->method('getAssociationMappings')
-            ->willReturn([]);
-
-        $em = $this->createMock(EntityManagerInterface::class);
-        $em->expects($this->once())
-            ->method('getClassMetadata')
-            ->willReturn($metadata);
-        $em->expects($this->once())
-            ->method('find')
-            ->willThrowException(new ORMInvalidArgumentException());
-
-        $reader = $this->createMock(Reader::class);
-
-        $entityAttacher = new EntityAttacher($em, $reader);
-
-        $attached = $entityAttacher->attach($unattached);
-
-        $this->assertEquals($unattached->id, $attached->id);
-    }
-
     public function testAttachUnattachedRelationship()
     {
         $related = new \stdClass();
@@ -286,7 +249,7 @@ class EntityAttacherTest extends TestCase
         $this->assertEquals($unattached->related->id, $attached->related->id);
     }
 
-    public function testAttacRelationship()
+    public function testAttachRelationship()
     {
         $related = new \stdClass();
         $related->id = 321;
@@ -350,7 +313,7 @@ class EntityAttacherTest extends TestCase
                     ]
                 ]
             )
-            ->willReturnOnConsecutiveCalls(null, $related);
+            ->willReturnOnConsecutiveCalls($this->throwException(new ORMInvalidArgumentException()), $related);
 
         $attach = $this->createMock(Attach::class);
 
@@ -447,7 +410,11 @@ class EntityAttacherTest extends TestCase
                     ]
                 ]
             )
-            ->willReturnOnConsecutiveCalls(null, null, $child);
+            ->willReturnOnConsecutiveCalls(
+                null,
+                $this->throwException(new ORMInvalidArgumentException()),
+                $child
+            );
 
         $attach = $this->createMock(Attach::class);
 
