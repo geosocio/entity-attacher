@@ -5,6 +5,7 @@ namespace GeoSocio\Tests\EntityAttacher;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\ORMInvalidArgumentException;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Doctrine\Common\Annotations\Reader;
 use GeoSocio\EntityAttacher\EntityAttacher;
@@ -88,6 +89,43 @@ class EntityAttacherTest extends TestCase
         $attached = $entityAttacher->attach($unattached);
 
         $this->assertSame($existing, $attached);
+    }
+
+    public function testAttachFindException()
+    {
+        $id = 123;
+        $ids = [
+            'id' => 123,
+        ];
+
+        $unattached = new \stdClass;
+        $unattached->id = $id;
+
+        $metadata = $this->getMockBuilder(ClassMetadataInfo::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $metadata->expects($this->once())
+            ->method('getIdentifierValues')
+            ->willReturn($ids);
+        $metadata->expects($this->once())
+            ->method('getAssociationMappings')
+            ->willReturn([]);
+
+        $em = $this->createMock(EntityManagerInterface::class);
+        $em->expects($this->once())
+            ->method('getClassMetadata')
+            ->willReturn($metadata);
+        $em->expects($this->once())
+            ->method('find')
+            ->willThrowException(new ORMInvalidArgumentException());
+
+        $reader = $this->createMock(Reader::class);
+
+        $entityAttacher = new EntityAttacher($em, $reader);
+
+        $attached = $entityAttacher->attach($unattached);
+
+        $this->assertEquals($unattached->id, $attached->id);
     }
 
     public function testAttachUnattachedRelationship()
