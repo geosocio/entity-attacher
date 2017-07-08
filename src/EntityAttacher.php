@@ -82,10 +82,14 @@ class EntityAttacher implements EntityAttacherInterface
 
             if ($value instanceof Collection) {
                 $item = $value->map(function ($stub) use ($data, $meta) {
-                    try {
-                        $item = $this->em->find($data['targetEntity'], $meta->getIdentifierValues($stub));
-                    } catch (ORMInvalidArgumentException $e) {
-                        $item = null;
+                    $item = null;
+
+                    if ($ids = $meta->getIdentifierValues($stub)) {
+                        try {
+                            $item = $this->em->find($data['targetEntity'], $ids);
+                        } catch (ORMInvalidArgumentException $e) {
+                            // Silence is Golden.
+                        }
                     }
 
                     // If the item was not found in the database, recursively call this
@@ -97,10 +101,14 @@ class EntityAttacher implements EntityAttacherInterface
                     return $item;
                 });
             } else {
-                try {
-                    $item = $this->em->find($data['targetEntity'], $meta->getIdentifierValues($value));
-                } catch (ORMInvalidArgumentException $e) {
-                    $item = null;
+                $item = null;
+
+                if ($ids = $meta->getIdentifierValues($value)) {
+                    try {
+                        $item = $this->em->find($data['targetEntity'], $ids);
+                    } catch (ORMInvalidArgumentException $e) {
+                        // Silence is Golden.
+                    }
                 }
 
                 // If the item was not found in the database, recursively call this
