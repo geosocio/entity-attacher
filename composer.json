@@ -2,7 +2,7 @@
     "name": "geosocio/entity-attacher",
     "description": "Utility to Attach Doctrine Entities to existing instances",
     "type": "library",
-    "license": "LGPL-3",
+    "license": "LGPL-3.0-only",
     "minimum-stability": "dev",
     "prefer-stable": true,
     "autoload": {
