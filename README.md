@@ -1,9 +1,9 @@
 # Entity Attacher [![Build Status](https://travis-ci.org/geosocio/entity-attacher.svg?branch=develop)](https://travis-ci.org/geosocio/entity-attacher) [![Coverage Status](https://coveralls.io/repos/github/geosocio/entity-attacher/badge.svg)](https://coveralls.io/github/geosocio/entity-attacher)
-Provides a method to attach _related_ entities to the current _unnatached_
+Provides a method to attach _related_ entities to the current _unattached_
 entity.This library is the product of a missing API that was found in
 [doctrine/doctrine2#6459](https://github.com/doctrine/doctrine2/issues/6459). If
 you want to create a new entity with a lot of existing related entities, you
-would have to manually go through each relation and attach the related entites.
+would have to manually go through each relation and attach the related entities.
 
 This can be tedious for entities that have a large number of relationships.
 
@@ -22,7 +22,7 @@ annotation to your annotation reader.
 
 ## Usage
 
-Add the `@Attach` annotation to to the relationships that _should_ be attached.
+Add the `@Attach` annotation to the relationships that _should_ be attached.
 
 ```php
 /**
